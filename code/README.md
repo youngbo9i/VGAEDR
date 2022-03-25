@@ -9,6 +9,5 @@ The code has been tested running under Python 3.8.0, with the following packages
 ###
     numpy==1.21.5
     torch==1.8.0
-
 ## Usage
     python main.py --data 1
