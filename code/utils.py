@@ -23,6 +23,7 @@ def load_data(dis_sim_path, drug_sim_path, drug_dis_path, cuda):
     dis_sim =np.loadtxt(dis_sim_path, delimiter=',')
     drug_sim = np.loadtxt(drug_sim_path, delimiter=',')
     drug_dis = np.loadtxt(drug_dis_path, delimiter=',')
+    dis_sim,drug_sim=dis_sim+np.eye(dis_sim.shape[0]),drug_sim+np.eye(drug_sim.shape[0])
     dis_sim = torch.from_numpy(dis_sim).float()
     drug_dis = torch.from_numpy(drug_dis).float()
     drug_sim = torch.from_numpy(drug_sim).float()
