@@ -1,6 +1,3 @@
-from random import random
-import numpy as np
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import argparse
@@ -98,46 +95,3 @@ def train(gnnq, gnnp, x_drug0, x_dis0, y0, epoch, alpha):
     return alpha * y_drug + (1 - alpha) * y_dis.t()
 
 
-def cross_validation_experiment(k_folds, drug_dis, alpha=0.5):
-    print("Dataset{}, {}-fold CV".format(args.data, k_folds))
-    result = []
-    drug_num = drug_dis.shape[0]
-    drug_idx = np.arange(drug_num)
-    np.random.shuffle(drug_idx)
-    for k in range(k_folds):
-        print("Fold {}".format(k + 1))
-        temp_drug_dis = drug_dis.clone()
-        print('before:', torch.sum(temp_drug_dis.reshape(-1)))
-        for j in range(k * drug_num // k_folds, (k + 1) * drug_num // k_folds):
-            temp_drug_dis[drug_idx[j], :] = 0
-        gnnq = GNNq()
-        gnnp = GNNp()
-        if args.cuda:
-            gnnq = gnnq.cuda()
-            gnnp = gnnp.cuda()
-        print('after:', torch.sum(temp_drug_dis.reshape(-1)))
-        train(gnnq, gnnp, drug_sim, dis_sim.t(), temp_drug_dis, args.epochs, args.alpha)
-        gnnq.eval()
-        gnnp.eval()
-        yli, _, ydi, _ = gnnp(temp_drug_dis)
-        resi = alpha * yli + (1 - alpha) * ydi.t()
-        resi = scaley(resi)
-        if args.cuda:
-            real_score, predict_score = drug_dis.cpu().detach().numpy(), resi.cpu().detach().numpy()
-            temp_drug_dis = temp_drug_dis.cpu().detach().numpy()
-        else:
-            real_score, predict_score = drug_dis.detach().numpy(), resi.detach().numpy()
-            temp_drug_dis = temp_drug_dis.detach().numpy()
-        metrics = get_metrics(real_score, predict_score)
-        result.append(metrics)
-    print('--5 flod cv average result----')
-    return result
-
-
-if __name__ == '__main__':
-    title = 'result--dataset' + str(args.data)
-    k_folds = 5
-    result = cross_validation_experiment(k_folds, drug_dis, alpha=args.alpha)
-    average_metries = np.array(result).sum(axis=0) / k_folds
-    print(average_metries[0], average_metries[1], average_metries[2], average_metries[3], average_metries[4],
-          average_metries[5], average_metries[6])
