@@ -16,7 +16,6 @@ parser.add_argument('--weight_decay', type=float, default=1e-5,
                     help='Weight decay (L2 loss on parameters).')
 parser.add_argument('--hidden', type=int, default=256,
                     help='Dimension of representations')
-#0.7
 parser.add_argument('--alpha', type=float, default=0.5,
                     help='Weight between drug space and disease space')
 parser.add_argument('--data', type=int, default=1, choices=[1,2],
